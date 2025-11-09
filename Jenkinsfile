@@ -3,12 +3,12 @@ pipeline {
 
     environment {
         // Azure environment
-        AZURE_SUBSCRIPTION_ID = '75279c7b-6f2e-4e76-ae48-b6aeab569b34'
-        AZURE_TENANT_ID = '766ef0d9-c1c7-4a7f-93ca-5e74124c5fc9'
+        AZURE_SUBSCRIPTION_ID = ' d6e154dc-0c67-4143-9261-e8b06141c24f'
+        AZURE_TENANT_ID = ' e8e808be-1f06-40a2-87f1-d3a52b7ce684'
 
         // App-specific
-        RESOURCE_GROUP = 'project-5'
-        APP_NAME = 'nodejs-project5'
+        RESOURCE_GROUP = 'project5'
+        APP_NAME = 'sai-webapp'
         NODE_ENV = 'production'
     }
 
@@ -17,7 +17,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/sudheerkumar93/project5-node.js-mongodb.git',
+                    url: ' https://github.com/pattelakrishna/project5-node.js-mongodb.git',
                     credentialsId: 'github-id'
             }
         }
@@ -43,12 +43,11 @@ pipeline {
 
         stage('Login to Azure') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
-                    string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET')
-                ]) {
+                // Use safe Jenkins credentials binding
+                withCredentials([string(credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'),
+            string(credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET')]) {
                     sh '''
-                        echo "🔐 Logging into Azure..."
+                        echo " Logging into Azure..."
                         az login --service-principal \
                             -u $AZURE_CLIENT_ID \
                             -p $AZURE_CLIENT_SECRET \
@@ -64,7 +63,7 @@ pipeline {
         stage('Deploy to Azure App Service') {
             steps {
                 sh '''
-                    echo "🚀 Deploying application to Azure App Service..."
+                    echo " Deploying application to Azure App Service..."
                     az webapp up \
                         --name $APP_NAME \
                         --resource-group $RESOURCE_GROUP \
@@ -79,7 +78,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'MONGODB_URI', variable: 'MONGODB_URI')]) {
                     sh '''
-                        echo "⚙️  Setting environment variables..."
+                        echo " Setting environment variables..."
                         az webapp config appsettings set \
                             --name $APP_NAME \
                             --resource-group $RESOURCE_GROUP \
@@ -92,11 +91,11 @@ pipeline {
 
     post {
         success {
-            echo '✅ CI/CD pipeline completed successfully!'
-            echo "Your app is live at: https://${APP_NAME}.azurewebsites.net"
+            echo ' CI/CD pipeline completed successfully!'
+            echo "Your app is live at: https://$APP_NAME.azurewebsites.net"
         }
         failure {
-            echo '❌ CI/CD pipeline failed. Please check the logs.'
+            echo ' CI/CD pipeline failed. Please check the logs.'
         }
     }
 }
