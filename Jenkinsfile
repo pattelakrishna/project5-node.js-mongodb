@@ -81,16 +81,18 @@ pipeline {
 
         stage('Deploy to Azure App Service') {
             steps {
-                sh """
+                // FIX: Switched to single quotes (''') and double-quoted the $NODE_RUNTIME 
+                // variable to prevent the '|' character from being interpreted as a shell pipe.
+                sh '''
                     echo "Deploying application to Azure App Service: $APP_NAME..."
                     # az webapp up creates the App Service and deploys the content in one step.
-                    az webapp up \\
-                        --name $APP_NAME \\
-                        --resource-group $RESOURCE_GROUP \\
-                        --runtime $NODE_RUNTIME \\
-                        --location $AZURE_LOCATION \\
+                    az webapp up \
+                        --name $APP_NAME \
+                        --resource-group $RESOURCE_GROUP \
+                        --runtime "$NODE_RUNTIME" \
+                        --location $AZURE_LOCATION \
                         --sku $AZURE_SKU
-                """
+                '''
             }
         }
 
