@@ -15,7 +15,8 @@ pipeline {
         // Define the target Node.js runtime for deployment
         NODE_RUNTIME          = 'NODE|20-lts'
         AZURE_LOCATION        = 'North Europe'
-        AZURE_SKU             = 'B1'
+        // UPDATED: Upgraded the App Service SKU to P2V3
+        AZURE_SKU             = 'P2V3'
     }
 
     stages {
@@ -97,14 +98,12 @@ pipeline {
             steps {
                 // Securely inject the sensitive MongoDB connection string
                 withCredentials([string(credentialsId: 'MONGODB_URI', variable: 'MONGODB_URI')]) {
-                    // NEW FIX: Use 'printf' inside the single-quoted shell block to securely
-                    // construct the settings string. This is the most reliable method for
-                    // handling secrets with special characters passed to external commands.
+                    // FIX: Using 'printf' inside the single-quoted shell block to securely
+                    // construct the settings string to handle special characters.
                     sh '''
                         echo "Setting MONGODB_URI and NODE_ENV environment variables on App Service..."
                         
                         # Use printf to construct the sensitive argument string
-                        # The %s format specifier handles complex characters in the URI safely.
                         SETTINGS_STRING=$(printf "MONGODB_URI=%s NODE_ENV=%s" "$MONGODB_URI" "$NODE_ENV")
 
                         az webapp config appsettings set \
